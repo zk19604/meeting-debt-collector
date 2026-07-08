@@ -94,6 +94,11 @@ async def check_pr_status(
             "error": f"GitHub check failed for {owner}/{repo}#{pull_number}: {e}",
         }
 
+    # MCP returns merged_by as a login string; REST returns a user object.
+    merged_by = pr.get("merged_by")
+    if isinstance(merged_by, dict):
+        merged_by = merged_by.get("login")
+
     status = "merged" if pr.get("merged") else pr.get("state", "unknown")
     last_commit_date = commits[-1]["author"]["date"] if commits else None
 
@@ -101,5 +106,5 @@ async def check_pr_status(
         "status": status,
         "last_commit_date": last_commit_date,
         "merged_at": pr.get("merged_at"),
-        "merged_by": (pr.get("merged_by") or {}).get("login"),
+        "merged_by": merged_by,
     }

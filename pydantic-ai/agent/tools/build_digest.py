@@ -103,10 +103,30 @@ async def _verify(item: dict, user_token: str | None) -> dict:
     }
 
 
+MAX_MATCHES_PER_ITEM = 3
+MAX_MATCH_TEXT_CHARS = 200
+
+
+def _trim_for_prompt(item: dict) -> dict:
+    """Cap RTS match count/length so one item's search hits can't blow the TPM budget."""
+    trimmed = dict(item)
+    rts = trimmed.get("rts_check")
+    if rts and rts.get("matches"):
+        trimmed["rts_check"] = {
+            **rts,
+            "matches": [
+                {**m, "text": m["text"][:MAX_MATCH_TEXT_CHARS]}
+                for m in rts["matches"][:MAX_MATCHES_PER_ITEM]
+            ],
+        }
+    return trimmed
+
+
 def _compose_digest_lines(items: list[dict]) -> list[str]:
     if not items:
         return []
-    user_prompt = "Overdue commitments:\n" + json.dumps(items, indent=2)
+    trimmed_items = [_trim_for_prompt(item) for item in items]
+    user_prompt = "Overdue commitments:\n" + json.dumps(trimmed_items)
     response = _get_client().chat.completions.create(
         model=MODEL,
         max_tokens=1024,

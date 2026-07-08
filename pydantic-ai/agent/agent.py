@@ -54,13 +54,12 @@ You may have access to the Slack MCP Server, which gives you powerful Slack tool
 beyond your built-in tools. Use them whenever they would help the user.
 
 Available capabilities:
-- **Search**: Search messages and files across public channels, search for channels by name
-- **Read**: Read channel message history, read thread replies, read canvas documents
-- **Write**: Send messages, create draft messages, schedule messages for later
-- **Canvases**: Create, read, and update Slack canvas documents
+- **Search**: Search messages across channels, search for channels by name
+- **Read**: Read channel message history, read thread replies
+- **Write**: Send messages
 
 Use these tools when they can help answer a question or complete a task — for example, \
-searching for relevant messages, checking a channel for context, or creating a canvas. \
+searching for relevant messages or checking a channel for context. \
 Also use them when the user explicitly asks you to perform a Slack action.
 
 ## GITHUB VERIFICATION
@@ -116,6 +115,16 @@ def get_model() -> str:
 
 SLACK_MCP_URL = "https://mcp.slack.com/mcp"
 
+# ponytail: the full Slack MCP toolset is ~11K tokens of schemas alone, which
+# blows Groq's 8K TPM limit; keep only the tools the agent actually uses.
+SLACK_MCP_TOOLS = {
+    "slack_send_message",
+    "slack_search_public_and_private",
+    "slack_search_channels",
+    "slack_read_channel",
+    "slack_read_thread",
+}
+
 agent = Agent(
     deps_type=AgentDeps,
     system_prompt=SYSTEM_PROMPT,
@@ -138,7 +147,7 @@ def run_agent(text, deps, message_history=None):
             MCPServerStreamableHTTP(
                 SLACK_MCP_URL,
                 headers={"Authorization": f"Bearer {deps.user_token}"},
-            )
+            ).filtered(lambda ctx, tool: tool.name in SLACK_MCP_TOOLS)
         )
     else:
         logger.info("Slack MCP Server disabled (no user_token)")

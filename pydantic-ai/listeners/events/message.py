@@ -1,3 +1,4 @@
+import os
 from logging import Logger
 
 from slack_bolt import BoltContext, Say, SayStream, SetStatus
@@ -61,6 +62,10 @@ def handle_message(
             ],
         )
 
+        # Socket Mode sessions carry no per-request user token; SLACK_USER_TOKEN
+        # (demo/sandbox fallback) keeps RTS + Slack MCP working without OAuth.
+        user_token = context.user_token or os.environ.get("SLACK_USER_TOKEN")
+
         # Run the agent
         deps = AgentDeps(
             client=client,
@@ -68,10 +73,10 @@ def handle_message(
             channel_id=channel_id,
             thread_ts=thread_ts,
             message_ts=event["ts"],
-            user_token=context.user_token,
+            user_token=user_token,
         )
         try:
-            commitment_store.upsert_user_token(user_id, context.user_token)
+            commitment_store.upsert_user_token(user_id, user_token)
             commitment_store.track_message(
                 user_id, channel_id, thread_ts, event["ts"], text
             )

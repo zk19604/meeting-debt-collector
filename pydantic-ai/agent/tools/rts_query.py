@@ -7,6 +7,7 @@ search.messages API rejects bot tokens.
 """
 
 import json
+import os
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -95,7 +96,11 @@ async def check_rts_status(
     query = _build_query(what, external_ref)
     try:
         client = WebClient(token=ctx.deps.user_token)
-        result = client.search_messages(query=query)
+        # Enterprise (org-wide) installs require an explicit workspace team_id.
+        kwargs = {}
+        if os.environ.get("SLACK_TEAM_ID"):
+            kwargs["team_id"] = os.environ["SLACK_TEAM_ID"]
+        result = client.search_messages(query=query, **kwargs)
         matches = [
             {
                 "text": m.get("text"),

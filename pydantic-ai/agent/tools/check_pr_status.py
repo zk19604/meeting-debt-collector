@@ -101,4 +101,5 @@ async def check_pr_status(
         "status": status,
         "last_commit_date": last_commit_date,
         "merged_at": pr.get("merged_at"),
+        "merged_by": (pr.get("merged_by") or {}).get("login"),
     }

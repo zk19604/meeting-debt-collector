@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B4FE9"/>
+      <stop offset="100%" stop-color="#2A1F9D"/>
+    </linearGradient>
+    <linearGradient id="tagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB020"/>
+      <stop offset="100%" stop-color="#F4801F"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="#F5F3FF"/>
+
+  <!-- chat bubble (the "meeting" / conversation) -->
+  <g filter="url(#softShadow)">
+    <path d="M256 88
+             c-97 0 -176 68 -176 152
+             c0 46 24 87 63 115
+             l-14 66
+             c-2 9 8 16 16 11
+             l72 -46
+             c13 2 26 3 39 3
+             c97 0 176 -68 176 -152
+             c0 -84 -79 -149 -176 -149 Z"
+          fill="url(#bubbleGrad)"/>
+  </g>
+
+  <!-- checkmark (verification against ground truth) -->
+  <path d="M188 258 L238 308 L336 200"
+        fill="none"
+        stroke="#FFFFFF"
+        stroke-width="30"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- debt tag (the "debt" being collected), clipped to sit on the bubble's edge -->
+  <g transform="translate(318 296) rotate(18)">
+    <path d="M0 18 L0 -30 Q0 -42 12 -42 L60 -42 Q72 -42 72 -30 L72 30 Q72 42 60 42 L28 42 Z"
+          fill="url(#tagGrad)"
+          stroke="#F5F3FF"
+          stroke-width="6"/>
+    <circle cx="18" cy="-22" r="7" fill="#F5F3FF"/>
+  </g>
+</svg>

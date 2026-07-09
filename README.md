@@ -1,12 +1,26 @@
+<div align="center">
+
+<img src="images/meeting_debt_collector_logo.svg" alt="Meeting Debt Collector logo" width="120" />
+
 # Meeting Debt Collector
 
 **A Slack agent that remembers what people promised — and checks whether it actually happened.**
 
-Built for the Slack Agent Builder Challenge (New Slack Agent track).
+Built for the **Slack Agent Builder Challenge** (New Slack Agent track).
+
+</div>
+
+---
+
+## 🎬 Demo
+
+![Demo preview (3× speed)](images/demo-preview.gif)
+
+*Preview at 3× speed — **[▶️ watch the full demo with audio](images/demo-video_2026-07-09_17-37-39.mp4)**.*
 
 ## The Problem
 
-Every day in Slack, people write "I'll ship the PR by Friday" or "I'll send the contract to legal by 5pm" — and those promises scroll away and die. Nobody tracks them, nobody follows up, and by the next meeting everyone is asking the same "did that ever happen?" questions. That untracked pile of promises is *meeting debt*.
+Every day in Slack, people write "I'll ship the PR by Friday" or "I'll send the contract to legal by 5pm" — and those promises scroll away and die. Nobody tracks them, nobody follows up, and by the next meeting everyone is asking the same "did that ever happen?" questions. That untracked pile of promises is **meeting debt**.
 
 ## What It Does
 
@@ -14,14 +28,9 @@ Every day in Slack, people write "I'll ship the PR by Friday" or "I'll send the 
 2. **Verifies against ground truth, not vibes.** For GitHub commitments it calls the **real GitHub MCP server** to check whether the PR is actually open, closed, or merged. For everything else it uses **Slack's Real-Time Search API** (`search.messages`, user token) to check whether the commitment was already reported done elsewhere in the workspace.
 3. **Collects the debt.** A weekly scheduler (plus an on-demand `send_weekly_digest_now` tool) builds a Block Kit digest of overdue commitments: verified-done items are silently excluded, still-open items show their real GitHub status, and unverifiable items are flagged "check manually."
 
-## Hackathon Technologies Used (2 of the 3)
-
-| Technology | Where |
-|---|---|
-| **MCP server integration** | GitHub MCP server (`https://api.githubcopilot.com/mcp/`) for live PR verification; Slack MCP server (`https://mcp.slack.com/mcp`) for in-workspace search/read/write/canvas actions when a user token is present |
-| **Real-Time Search API** | `check_rts_status` tool — an LLM-generated search query against `search.messages` with granular `search:read.*` user scopes |
-
 ## Architecture
+
+![Architecture diagram](images/architecture.png)
 
 ```
 Slack (DM / @mention / Assistant panel)
@@ -42,6 +51,47 @@ Weekly scheduler (Mon 9:00 UTC) ──► verify each overdue item ──► Blo
 
 See `docs/PROJECT_EXPLAINED.md` for every design decision, explained.
 
+### Commitment Lifecycle
+
+Every captured promise moves through a verify-before-nag lifecycle — nothing lands in the digest without a ground-truth check first:
+
+![Commitment lifecycle](images/commitment-lifecycle.png)
+
+## Hackathon Technologies Used (2 of the 3)
+
+| Technology | Where |
+|---|---|
+| **MCP server integration** | GitHub MCP server (`https://api.githubcopilot.com/mcp/`) for live PR verification; Slack MCP server (`https://mcp.slack.com/mcp`) for in-workspace search/read/write/canvas actions when a user token is present |
+| **Real-Time Search API** | `check_rts_status` tool — an LLM-generated search query against `search.messages` with granular `search:read.*` user scopes |
+
+## Screenshots
+
+### Multi-commitment extraction
+One message, several promises — the extractor splits them out with owners, deadlines, and references, and rejects the non-commitments.
+
+![Multiple commitments extracted from one message](images/multicommitement.png)
+
+### It knows what it *can't* capture
+Delegations, hedges, and vague team-speak are explicitly rejected — no false debt.
+
+![Rejecting a delegation as a non-commitment](images/cant-delegate.png)
+
+### Live GitHub PR verification (MCP)
+"Is PR #2 merged?" is answered by the real GitHub MCP server, not by guessing.
+
+![GitHub PR status check via MCP](images/github-pr-check.png)
+
+![GitHub PR check with commitment context](images/github-pr-check-2.png)
+
+Works on any public repo too:
+
+![Public repo PR verification](images/public-pr-test.png)
+
+### Real-Time Search verification
+Non-GitHub commitments are checked against the workspace with Slack's Real-Time Search API before they're ever flagged as overdue.
+
+![Real-Time Search status check](images/rts-check.png)
+
 ## Repository Layout
 
 ```
@@ -57,6 +107,7 @@ docs/
   PROJECT_EXPLAINED.md  Deep-dive: every component and why
   VIDEO_SCRIPT.md       Demo video script
   SUBMISSION_CHECKLIST.md  Devpost submission checklist
+images/                 Demo video, diagrams, and screenshots
 ```
 
 ## Running It

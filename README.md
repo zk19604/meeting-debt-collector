@@ -14,9 +14,11 @@ Built for the **Slack Agent Builder Challenge** (New Slack Agent track).
 
 ## 🎬 Demo
 
-![Demo preview (3× speed)](images/demo-preview.gif)
 
-*Preview at 3× speed — **[▶️ watch the full demo with audio](images/demo-video_2026-07-09_17-37-39.mp4)**.*
+
+https://github.com/user-attachments/assets/cdef0604-5334-4a85-addb-838750356fe4
+
+
 
 ## The Problem
 
